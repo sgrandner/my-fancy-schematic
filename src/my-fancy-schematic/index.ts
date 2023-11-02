@@ -4,7 +4,9 @@ import { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 // per file.
 export function myFancySchematic(_options: any): Rule {
 
-    console.log('asdfas fasdf as');
+    const fancy = _options.fancy;
+
+    console.log(`This fancy stuff is called ${fancy}`);
 
     return (tree: Tree, _context: SchematicContext) => {
         return tree;
