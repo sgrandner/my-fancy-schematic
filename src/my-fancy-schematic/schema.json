@@ -1,0 +1,18 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "$id": "MyFancySchematic",
+    "title": "My fancy schematic",
+    "type": "object",
+    "description": "Do something really fancy",
+    "properties": {
+        "fancy": {
+            "type": "string",
+            "description": "a fancy property",
+            "x-prompt": "Fancy Property:",
+            "$default": {
+                "$source": "argv",
+                "index": 0
+            }
+        }
+    }
+}

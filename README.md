@@ -1,28 +1,38 @@
-# Getting Started With Schematics
+# My Fancy Schematic
 
-This repository is a basic Schematic implementation that serves as a starting point to create and publish Schematics to NPM.
 
-### Testing
+### Building
 
-To test locally, install `@angular-devkit/schematics-cli` globally and use the `schematics` command line tool. That tool acts the same as the `generate` command of the Angular CLI, but also has a debug mode.
+    npm run build
 
-Check the documentation with
 
-```bash
-schematics --help
-```
+### Starting (with optional properties)
+
+    npm run start
+
+As defined by schema.json (which is set in collection.json)
+a property `fancy` can be set in different ways
+
+* with prompt
+
+        npm run start
+
+* as `fancy` argument
+
+        npm run start --fancy=<something>
+
+* first command line argument as default
+
+        npm run start <something>
+
 
 ### Unit Testing
 
-`npm run test` will run the unit tests, using Jasmine as a runner and test framework.
+run the unit tests, using Jasmine as a runner and test framework
+
+    npm run test
+
 
 ### Publishing
 
-To publish, simply do:
-
-```bash
-npm run build
-npm publish
-```
-
-That's it!
+    npm publish
