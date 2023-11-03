@@ -1,0 +1,19 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "$id": "MySuperFancySchematic",
+    "title": "My super fancy schematic",
+    "type": "object",
+    "description": "Do something really super fancy",
+    "properties": {
+        "id": {
+            "type": "number",
+            "description": "id for fancy json",
+            "x-prompt": "fancy json id:"
+        },
+        "name": {
+            "type": "string",
+            "description": "name for fancy json",
+            "x-prompt": "fancy json name:"
+        }
+    }
+}
