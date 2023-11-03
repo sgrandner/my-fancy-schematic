@@ -3,13 +3,13 @@ import { MyFancyOptionsSchema } from './schema';
 
 // You don't have to export the function as default. You can also have more than one rule factory
 // per file.
-export function myFancySchematic(_options: MyFancyOptionsSchema): Rule {
+export function myFancySchematic(options: MyFancyOptionsSchema): Rule {
 
-    const fancy = _options.fancy;
+    const fancy = options.fancy;
 
     console.log(`This fancy stuff is called ${fancy}`);
 
-    return (_: Tree, _context: SchematicContext) => {
+    return (_tree: Tree, _context: SchematicContext) => {
         return externalSchematic('@schematics/angular', 'ng-new', {
             name: fancy,
             version: '9.0.0',
