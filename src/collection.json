@@ -2,9 +2,13 @@
     "$schema": "../node_modules/@angular-devkit/schematics/collection-schema.json",
     "schematics": {
         "my-fancy-schematic": {
-            "description": "A blank schematic.",
+            "description": "A fancy schematic.",
             "factory": "./my-fancy-schematic/index#myFancySchematic",
             "schema": "./my-fancy-schematic/schema.json"
+        },
+        "my-super-fancy-schematic": {
+            "description": "A super fancy schematic.",
+            "factory": "./my-super-fancy-schematic/index#mySuperFancySchematic"
         }
     }
 }

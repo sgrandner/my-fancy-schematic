@@ -16,6 +16,11 @@ Install schematics dependencies
 **TODO install as local dev dependencies in project instead ?!**
 
 
+### Add schematic to project
+
+    schematics blank --name=<schematic name>
+
+
 ### Building
 
     npm run build
