@@ -1,17 +1,23 @@
-import { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
+import { Rule, SchematicContext, Tree, apply, mergeWith, url } from '@angular-devkit/schematics';
 
 // You don't have to export the function as default. You can also have more than one rule factory
 // per file.
 export function mySuperFancySchematic(options: any): Rule {
     return (tree: Tree, context: SchematicContext) => {
-        return addFile(options)(tree, context);
+        return createFile(options)(tree, context);
     };
 }
 
-function addFile(_options: any): Rule {
-    return (_tree: Tree, context: SchematicContext) => {
+function createFile(_options: any): Rule {
+    return (tree: Tree, context: SchematicContext) => {
 
-        context
-        return undefined;
+        console.log('create a file in current folder');
+
+        const templateSource = apply(
+            url('./templates'),
+            [],
+        );
+
+        return mergeWith(templateSource)(tree, context);
     };
 }
