@@ -1,5 +1,14 @@
-# My Fancy Schematic
+# My first angular schematics
 
+* prepare and develop schematics project
+* details on schematics
+
+## Links
+
+https://javascript-conference.com/blog/how-to-create-your-own-angular-schematics/
+
+
+## Preparation and Development
 
 ### Pre-requisits
 

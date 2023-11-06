@@ -1,0 +1,7 @@
+{
+    "fancy": {
+        "id": <%= id %>,
+        "name": "<%= name %>",
+        "isTemplate": true
+    }
+}
