@@ -60,7 +60,7 @@ function createFancyComponent(options: MySuperFancyOptionsSchema): Rule {
         const templateSource = apply(
             url('./templates'),
             [
-                filter((path) => path.endsWith('.fancy.js')),
+                filter((path) => path.endsWith('.fancy.ts')),
                 template({
                     ...options,
                     componentName,
@@ -82,7 +82,7 @@ function readComponentName(): string {
     const filenames = fs.readdirSync('./');
     console.log(`reading file names in directory: ${filenames.toString()}`);
 
-    const pattern = /([a-zA-Z0-9-_.]+)\.component\.js/;
+    const pattern = /([a-zA-Z0-9-_.]+)\.component\.ts/;
     const componentFilename = filenames.find((filename) => pattern.test(filename));
     const componentName = componentFilename?.replace(pattern, '$1');
     // TODO try to solve these two steps with one reduce step ?!
