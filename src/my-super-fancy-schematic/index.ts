@@ -61,30 +61,20 @@ function createFancyComponent(options: MySuperFancyOptionsSchema): Rule {
         console.log('create a fancy component file in current folder ' +
             `for component name: "${componentNameCamelized}"`);
 
-        // TODO parse component file and return object containing input and output names, types and default values
         const parsedInputs = parseInputsFromComponent(component.filename);
-
-        const i = parsedInputs[ 9 ];
-
-        let input1 = i.name;
-        if (i.type?.length > 0) {
-            input1 = input1.concat(`: ${i.type}`);
-        }
-        if (i.value?.length > 0) {
-            input1 = input1.concat(` = ${i.value}`);
-        }
-        input1 = input1.concat(';');
+        const inputStrings = generateInputStrings(parsedInputs);
 
         const templateSource = apply(
             url('./templates'),
             [
                 filter((path) => path.endsWith('.fancy.ts')),
-                // passed arguments are used as values for placeholders in files and for file names
+                // NOTE passed arguments are used as values for placeholders in files and for file names
                 template({
                     ...options,
                     componentName: component.name,
                     componentNameCamelized,
-                    input1,
+                    arrayWithIsLast,
+                    inputStrings,
                 }),
             ],
         );
@@ -94,10 +84,6 @@ function createFancyComponent(options: MySuperFancyOptionsSchema): Rule {
 }
 
 function readComponentName(): ComponentName {
-
-    // const asdf = tree.read('/package.json');
-    // const asdf = tree.getDir('/');
-    // console.log(JSON.stringify(asdf));
 
     const filenames = fs.readdirSync(FILE_PATH);
     console.log(`reading file names in directory: ${filenames.toString()}`);
@@ -124,30 +110,9 @@ function parseInputsFromComponent(filename: string): ComponentInput[] {
 
     const buffer = fs.readFileSync(`${FILE_PATH}${filename}`, { encoding: 'utf8' });
 
-    // const patternUntypedInputs = /@Input\(\)\s+([a-zA-Z0-9-_$]+)(?:\?|!)?(?![a-zA-Z0-9-_$?!:=\s]);?/g;
-    // for (const match of buffer.matchAll(patternUntypedInputs)) {
-    //     console.log(`_${match[ 1 ]}_`);
-    // }
-
-    // const patternTypedInputs = /@Input\(\)\s+([a-zA-Z0-9-_$]+)(?:\?|!)?:\s+([a-zA-Z<>\s{}\[\]:]+)(?![a-zA-Z0-9-_$?!:=\s]);?/g;
-    // for (const match of buffer.matchAll(patternTypedInputs)) {
-    //     console.log(`_${match[ 1 ]}_${match[ 2 ]}_`);
-    // }
-
-    // const patternUntypedInputsWithDefault = /@Input\(\)\s+([a-zA-Z0-9-_$]+)(?:\?|!)?\s+=\s+([a-zA-Z0-9<>'"]+)(?![a-zA-Z0-9-_$?!:=\s]);?/g;
-    // for (const match of buffer.matchAll(patternUntypedInputsWithDefault)) {
-    //     console.log(`_${match[ 1 ]}_${match[ 2 ]}_`);
-    // }
-
-    // const patternTypedInputsWithDefault = /@Input\(\)\s+([a-zA-Z0-9-_$]+)(?:\?|!)?:\s+([a-zA-Z<>\s{}\[\]:]+)\s+=\s+([a-zA-Z0-9<>'"]+)(?![a-zA-Z0-9-_$?!:=\s]);?/g;
-    // for (const match of buffer.matchAll(patternTypedInputsWithDefault)) {
-    //     console.log(`_${match[ 1 ]}_${match[ 2 ]}_${match[ 3 ]}_`);
-    // }
-
-    const parsedInputs: ComponentInput[] = [];
-
     const patternInputs = /@Input\(\)\s+([a-zA-Z0-9-_$]+)(?:\?|!)?(?::\s+([a-zA-Z<>\s{}\[\]:]+))?(?:\s+=\s+([a-zA-Z0-9<>'"]+))?(?![a-zA-Z0-9-_$?!:=\s]);?/g;
 
+    const parsedInputs: ComponentInput[] = [];
     for (const match of buffer.matchAll(patternInputs)) {
 
         console.log(`_${match[ 1 ]}_${match[ 2 ]}_${match[ 3 ]}_`);
@@ -160,4 +125,49 @@ function parseInputsFromComponent(filename: string): ComponentInput[] {
     }
 
     return parsedInputs;
+}
+
+function generateInputStrings(parsedInputs: ComponentInput[]): string[] {
+
+    const inputStrings: string[] = [];
+
+    for (const i of parsedInputs) {
+
+        let inputString = i.name;
+        if (i.type?.length > 0) {
+            inputString = inputString.concat(`: ${i.type}`);
+        }
+        if (i.value?.length > 0) {
+            inputString = inputString.concat(` = ${i.value}`);
+        }
+        inputString = inputString.concat(';');
+
+        inputStrings.push(inputString);
+    }
+
+    return inputStrings;
+}
+
+// see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Iterators_and_generators
+//     https://stackoverflow.com/questions/54116774/detect-last-iteration-in-for-of-loop-in-es6-javascript
+//
+// usage example:
+//    for (const j of arrayWithIsLast([ 'asdf', 'qwer', 'yxcv' ])) {
+//        const delimiter = j.isLast ? '!' : ',';
+//        console.log(`${j.value}${delimiter}`);
+//    }
+export function* arrayWithIsLast(iterable: string[] | number[]) {
+
+    const iterator = iterable[ Symbol.iterator ]();
+    let current = iterator.next();
+    let next = iterator.next();
+
+    while (!current.done) {
+        yield {
+            value: current.value,
+            isLast: next.done,
+        };
+        current = next;
+        next = iterator.next();
+    }
 }
