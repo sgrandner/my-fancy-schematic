@@ -5,9 +5,20 @@
     "scripts": {
         "start:my-fancy-schematic": "schematics .:my-fancy-schematic",
         "start:my-super-fancy-schematic": "schematics .:my-super-fancy-schematic",
-        "build": "tsc -p tsconfig.json",
+
+        "test": "npm run build && jasmine src/**/*_spec.js",
+
+        "build": "tsc -p tsconfig.json && npm run copyFiles",
+        "build:watchAndCopy": "npm run build:clean && run-p build:watch build:waitToCopy",
+
+        "build:clean": "rimraf dist",
         "build:watch": "tsc -p tsconfig.json --watch",
-        "test": "npm run build && jasmine src/**/*_spec.js"
+        "build:waitToCopy": "wait-on dist/my-super-fancy-schematic/index.js && npm run copyFiles",
+
+        "copyFiles": "npm run copySchema && npm run copySchemaOptions && npm run copyTemplates",
+        "copySchema": "cp src/my-super-fancy-schematic/schema.json dist/my-super-fancy-schematic/schema.json",
+        "copySchemaOptions": "cp src/my-super-fancy-schematic/schema.d.ts dist/my-super-fancy-schematic/schema.d.ts",
+        "copyTemplates": "cp -r src/my-super-fancy-schematic/templates dist/my-super-fancy-schematic/templates"
     },
     "keywords": [
         "schematics"
@@ -21,8 +32,11 @@
         "typescript": "~5.1.3"
     },
     "devDependencies": {
-        "@types/node": "^16.11.7",
         "@types/jasmine": "~4.3.0",
-        "jasmine": "^4.0.0"
+        "@types/node": "^16.11.7",
+        "jasmine": "^4.0.0",
+        "npm-run-all": "^4.1.5",
+        "rimraf": "^5.0.5",
+        "wait-on": "^7.1.0"
     }
 }

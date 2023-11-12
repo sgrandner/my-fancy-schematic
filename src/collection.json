@@ -3,13 +3,13 @@
     "schematics": {
         "my-fancy-schematic": {
             "description": "A fancy schematic.",
-            "factory": "./my-fancy-schematic/index#myFancySchematic",
-            "schema": "./my-fancy-schematic/schema.json"
+            "factory": "../dist/my-fancy-schematic/index#myFancySchematic",
+            "schema": "../dist/my-fancy-schematic/schema.json"
         },
         "my-super-fancy-schematic": {
             "description": "A super fancy schematic.",
-            "factory": "./my-super-fancy-schematic/index#mySuperFancySchematic",
-            "schema": "./my-super-fancy-schematic/schema.json"
+            "factory": "../dist/my-super-fancy-schematic/index#mySuperFancySchematic",
+            "schema": "../dist/my-super-fancy-schematic/schema.json"
         }
     }
 }

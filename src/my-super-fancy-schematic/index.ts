@@ -110,7 +110,7 @@ function parseInputsFromComponent(filename: string): ComponentInput[] {
     const buffer = fs.readFileSync(`${FILE_PATH}${filename}`, { encoding: 'utf8' });
 
     const patternInputs = generateInputPattern();
-    customConsoleLog(patternInputs.source);
+    customConsoleLog(patternInputs.source, 'regex for component inputs:');
 
     const parsedInputs: ComponentInput[] = [];
     const logArray: string[] = [];
@@ -190,7 +190,7 @@ function parseOutputsFromComponent(filename: string): ComponentOutput[] {
     const buffer = fs.readFileSync(`${FILE_PATH}${filename}`, { encoding: 'utf8' });
 
     const patternOutputs = generateOutputPattern();
-    customConsoleLog(patternOutputs.source);
+    customConsoleLog(patternOutputs.source, 'regex for component outputs:');
 
     const parsedOutputs: ComponentOutput[] = [];
     const logArray: string[] = [];
