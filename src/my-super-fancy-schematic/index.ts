@@ -1,4 +1,4 @@
-import { Rule, SchematicContext, Tree, apply, chain, filter, mergeWith, template, url } from '@angular-devkit/schematics';
+import { Rule, SchematicContext, Tree, apply, chain, filter, mergeWith, renameTemplateFiles, template, url } from '@angular-devkit/schematics';
 import { MySuperFancyOptionsSchema } from './schema';
 import * as fs from 'fs';
 import { ComponentName } from './_domain/componentName';
@@ -32,8 +32,9 @@ function createJsonFile(options: MySuperFancyOptionsSchema): Rule {
         const templateSource = apply(
             url('./templates'),
             [
-                filter((path) => path.endsWith('.json')),
+                filter((path) => path.endsWith('.json.template')),
                 template({ ...options }),
+                renameTemplateFiles(),
             ],
         );
 
@@ -57,7 +58,7 @@ function createFancyComponent(options: MySuperFancyOptionsSchema): Rule {
         const templateSource = apply(
             url('./templates'),
             [
-                filter((path) => path.endsWith('.fancy.ts')),
+                filter((path) => path.endsWith('.fancy.ts.template')),
                 // NOTE passed arguments are used as values for placeholders in files and for file names
                 template({
                     ...options,
@@ -66,6 +67,7 @@ function createFancyComponent(options: MySuperFancyOptionsSchema): Rule {
                     arrayWithIsLast,
                     inputStrings,
                 }),
+                renameTemplateFiles(),
             ],
         );
 
