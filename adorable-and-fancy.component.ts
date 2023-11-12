@@ -29,12 +29,18 @@ class AdorableAndFancyComponent {
     @Input() awesomeNumber: number = 42;
 
 
-    // input setters
-    @Input('strangeName') set setStrangeName(strangeName: string) {
-    }
+    // alias
+    @Input('reallyAwesomeNumber') awesomeNumber: number = 84;
 
 
-    // inputs on new line (maybe read by typed inputs pattern -> new line -> \s)
+    // inputs on new line (read by \s in regex)
     @Input()
     ridiculousName: string;
+
+
+    // TODO input setters with optional alias
+    @Input() set setStrangeName(locaStrangeName: string) {
+    }
+    @Input('strangeName') set setStrangeName(locaStrangeName: string) {
+    }
 }

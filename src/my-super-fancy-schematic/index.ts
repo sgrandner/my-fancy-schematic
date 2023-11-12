@@ -110,17 +110,19 @@ function parseInputsFromComponent(filename: string): ComponentInput[] {
 
     const buffer = fs.readFileSync(`${FILE_PATH}${filename}`, { encoding: 'utf8' });
 
-    const patternInputs = /@Input\(\)\s+([a-zA-Z0-9-_$]+)(?:\?|!)?(?::\s+([a-zA-Z<>\s{}\[\]:]+))?(?:\s+=\s+([a-zA-Z0-9<>'"]+))?(?![a-zA-Z0-9-_$?!:=\s]);?/g;
+    const patternInputs = /@Input\((?:'|")?([a-zA-Z0-9-_]*)(?:'|")?\)(?: set)?\s*\n?\s*([a-zA-Z0-9-_$]+)(?:\?|!)?(?::\s+([a-zA-Z0-9-_<>\s{}\[\]:]+))?(?:\s+=\s+([a-zA-Z0-9-_<>'"]+))?(?![a-zA-Z0-9-_$?!:=\s]);?(?:\((?:[a-zA-Z0-9-_$]+)(?:\?|!)?(?::\s+([a-zA-Z0-9-_<>\s{}\[\]:]+))\)\s*\{)?/g;
 
     const parsedInputs: ComponentInput[] = [];
     for (const match of buffer.matchAll(patternInputs)) {
 
-        console.log(`_${match[ 1 ]}_${match[ 2 ]}_${match[ 3 ]}_`);
+        console.log(`_${match[ 1 ]}_${match[ 2 ]}_${match[ 3 ]}_${match[ 4 ]}_${match[ 5 ]}_`);
 
         parsedInputs.push({
-            name: match[ 1 ],
-            type: match[ 2 ],
-            value: match[ 3 ],
+            alias: match[ 1 ],
+            name: match[ 2 ],
+            type: match[ 3 ],
+            value: match[ 4 ],
+            setterType: match[ 5 ],
         });
     }
 
@@ -133,13 +135,18 @@ function generateInputStrings(parsedInputs: ComponentInput[]): string[] {
 
     for (const i of parsedInputs) {
 
-        let inputString = i.name;
+        let inputString = i.alias?.length > 0 ? i.alias : i.name;
+
         if (i.type?.length > 0) {
             inputString = inputString.concat(`: ${i.type}`);
+        } else if (i.setterType?.length > 0) {
+            inputString = inputString.concat(`: ${i.setterType}`);
         }
+
         if (i.value?.length > 0) {
             inputString = inputString.concat(` = ${i.value}`);
         }
+
         inputString = inputString.concat(';');
 
         inputStrings.push(inputString);
