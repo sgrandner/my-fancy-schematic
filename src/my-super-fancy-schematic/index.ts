@@ -131,21 +131,22 @@ function generateInputStrings(parsedInputs: ComponentInput[]): string[] {
 
     for (const i of parsedInputs) {
 
-        let inputString = !!i.alias && i.alias.length > 0 ? i.alias : i.name ?? '';
+        const stringArray: string[] = [];
+        stringArray.push(!!i.alias && i.alias.length > 0 ? i.alias : i.name ?? '')
 
         if (!!i.type && i.type.length > 0) {
-            inputString = inputString.concat(`: ${i.type}`);
+            stringArray.push(`: ${i.type}`);
         } else if (!!i.setterType && i.setterType.length > 0) {
-            inputString = inputString.concat(`: ${i.setterType}`);
+            stringArray.push(`: ${i.setterType}`);
         }
 
         if (!!i.value && i.value.length > 0) {
-            inputString = inputString.concat(` = ${i.value}`);
+            stringArray.push(` = ${i.value}`);
         }
 
-        inputString = inputString.concat(';');
+        stringArray.push(';');
 
-        inputStrings.push(inputString);
+        inputStrings.push(stringArray.join(''));
     }
 
     return inputStrings;
