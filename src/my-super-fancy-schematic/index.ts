@@ -1,21 +1,10 @@
 import { Rule, SchematicContext, Tree, apply, chain, filter, mergeWith, template, url } from '@angular-devkit/schematics';
 import { MySuperFancyOptionsSchema } from './schema';
 import * as fs from 'fs';
-import { camelize } from '@angular-devkit/core/src/utils/strings';
 import { ComponentName } from './_domain/componentName';
 import { ComponentInput } from './_domain/componentInput';
 
-// TODO move to declaration file in @types folder
-declare global {
-    interface String {
-        toUpperCamelCase(): string;
-    }
-}
-
-String.prototype.toUpperCamelCase = function (): string {
-    const value = camelize(this.valueOf());
-    return value.substring(0, 1).toUpperCase() + value.substring(1);
-}
+import '../utils/to-upper-camel-case';
 
 const FILE_PATH = './';
 

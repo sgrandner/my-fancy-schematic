@@ -20,9 +20,14 @@
         "sourceMap": true,
         "strictNullChecks": true,
         "target": "es6",
+        "typeRoots": [
+            "node_modules/@types",
+            "src/@types"
+        ],
         "types": [
             "jasmine",
-            "node"
+            "node",
+            "custom-string-utils"
         ]
     },
     "include": [
