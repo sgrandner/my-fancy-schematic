@@ -1,7 +1,7 @@
 export interface ComponentInput {
-    alias: string;
-    name: string;
-    type: string;
-    value: string;
-    setterType: string;
+    alias: string | undefined;
+    name: string | undefined;
+    type: string | undefined;
+    value: string | undefined;
+    setterType: string | undefined;
 }

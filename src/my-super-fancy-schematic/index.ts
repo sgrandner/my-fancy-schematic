@@ -6,6 +6,7 @@ import { ComponentInput } from './_domain/componentInput';
 
 import '../utils/to-upper-camel-case';
 import { arrayWithIsLast } from '../utils/array-with-is-last';
+import { customConsoleLog } from '../utils/custom-console-log';
 
 const FILE_PATH = './';
 
@@ -25,7 +26,7 @@ function createJsonFile(options: MySuperFancyOptionsSchema): Rule {
 
     return (tree: Tree, context: SchematicContext) => {
 
-        console.log('create a json file in current folder ' +
+        customConsoleLog('create a json file in current folder ' +
             `with arguments name: "${options.name}" ` +
             `and id: ${options.id}`);
 
@@ -49,7 +50,7 @@ function createFancyComponent(options: MySuperFancyOptionsSchema): Rule {
         const component = readComponentName();
         const componentNameCamelized = component.name.toUpperCamelCase();
 
-        console.log('create a fancy component file in current folder ' +
+        customConsoleLog('create a fancy component file in current folder ' +
             `for component name: "${componentNameCamelized}"`);
 
         const parsedInputs = parseInputsFromComponent(component.filename);
@@ -78,15 +79,15 @@ function createFancyComponent(options: MySuperFancyOptionsSchema): Rule {
 function readComponentName(): ComponentName {
 
     const filenames = fs.readdirSync(FILE_PATH);
-    console.log(`reading file names in directory: ${filenames.toString()}`);
+    customConsoleLog(`reading file names in directory: ${filenames.toString()}`);
 
     const pattern = /([a-zA-Z0-9-_.]+)\.component\.ts/;
     const filename = filenames.find((filename) => pattern.test(filename));
     const name = filename?.replace(pattern, '$1');
     // TODO try to solve these two steps with one reduce step ?!
 
-    console.log(`componentFilename: ${filename}`);
-    console.log(`componentName: ${name}`);
+    customConsoleLog(`componentFilename: ${filename}`);
+    customConsoleLog(`componentName: ${name}`);
 
     if (!filename || !name) {
         throw new Error('No component name can be matched !');
@@ -102,12 +103,11 @@ function parseInputsFromComponent(filename: string): ComponentInput[] {
 
     const buffer = fs.readFileSync(`${FILE_PATH}${filename}`, { encoding: 'utf8' });
 
-    const patternInputs = /@Input\((?:'|")?([a-zA-Z0-9-_]*)(?:'|")?\)(?: set)?\s*\n?\s*([a-zA-Z0-9-_$]+)(?:\?|!)?(?::\s+([a-zA-Z0-9-_<>\s{}\[\]:]+))?(?:\s+=\s+([a-zA-Z0-9-_<>'"]+))?(?![a-zA-Z0-9-_$?!:=\s]);?(?:\((?:[a-zA-Z0-9-_$]+)(?:\?|!)?(?::\s+([a-zA-Z0-9-_<>\s{}\[\]:]+))\)\s*\{)?/g;
+    const patternInputs = /@Input\((?:(?:'|")([a-zA-Z0-9-_]+)(?:'|"))?\)(?: set)?\s*\n?\s*([a-zA-Z0-9-_$]+)(?:\?|!)?(?::\s+([a-zA-Z0-9-_<>\s{}\[\]:]+))?(?:\s+=\s+([a-zA-Z0-9-_<>'"]+))?(?![a-zA-Z0-9-_$?!:=\s]);?(?:\((?:[a-zA-Z0-9-_$]+)(?:\?|!)?(?::\s+([a-zA-Z0-9-_<>\s{}\[\]:]+))\)\s*\{)?/g;
 
     const parsedInputs: ComponentInput[] = [];
+    const logArray: string[] = [];
     for (const match of buffer.matchAll(patternInputs)) {
-
-        console.log(`_${match[ 1 ]}_${match[ 2 ]}_${match[ 3 ]}_${match[ 4 ]}_${match[ 5 ]}_`);
 
         parsedInputs.push({
             alias: match[ 1 ],
@@ -116,7 +116,11 @@ function parseInputsFromComponent(filename: string): ComponentInput[] {
             value: match[ 4 ],
             setterType: match[ 5 ],
         });
+
+        logArray.push(`alias: ${match[ 1 ]}, name: ${match[ 2 ]}, type: ${match[ 3 ]}, value: ${match[ 4 ]}, setterType: ${match[ 5 ]}`);
     }
+
+    customConsoleLog(logArray, 'matched component inputs:');
 
     return parsedInputs;
 }
@@ -127,15 +131,15 @@ function generateInputStrings(parsedInputs: ComponentInput[]): string[] {
 
     for (const i of parsedInputs) {
 
-        let inputString = i.alias?.length > 0 ? i.alias : i.name;
+        let inputString = !!i.alias && i.alias.length > 0 ? i.alias : i.name ?? '';
 
-        if (i.type?.length > 0) {
+        if (!!i.type && i.type.length > 0) {
             inputString = inputString.concat(`: ${i.type}`);
-        } else if (i.setterType?.length > 0) {
+        } else if (!!i.setterType && i.setterType.length > 0) {
             inputString = inputString.concat(`: ${i.setterType}`);
         }
 
-        if (i.value?.length > 0) {
+        if (!!i.value && i.value.length > 0) {
             inputString = inputString.concat(` = ${i.value}`);
         }
 
