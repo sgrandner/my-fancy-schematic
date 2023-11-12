@@ -64,6 +64,99 @@ run the unit tests, using Jasmine as a runner and test framework
     npm run test
 
 
-### Publishing
+### Publishing to official npm registry (use with care)
 
     npm publish
+
+**TODO publish in own registry and more**
+
+
+## Some details on angular schematics
+
+official angular-devkit-schematics docs:
+*https://github.com/angular/angular-devkit-schematics-builds/blob/main/README.md*
+
+example:
+*https://javascript-conference.com/blog/how-to-create-your-own-angular-schematics/*
+
+
+### Schematic
+
+* a factory which returns a Rule
+* rules are applied to a tree to produce a new tree
+
+
+### Tree and File System
+
+* a tree is the internal representation of the file system
+* changes by a schematic are applied to the tree but not to the actual files
+* when finished the tree is written to the file system unless it is run in debug mode
+
+
+### SchematicContext
+
+* contains utility functions and metadata
+
+
+### Collection
+
+* all schematics of a schematics project are defined in `collection.json` setting a factory and an optional schema (this project here builds all files to a dist folder !)
+* these factories are in `src/<schematic name>/index.ts` (or other file name)
+
+
+### Templating
+
+Templating for schematics might be a mess due to the syntax for placeholders and structural javascript.
+* templates are handled by methods of `@angular-devkit/schematics`, e.g.
+
+        apply(
+            url('./templates'),
+            [
+                filter((path) => path.endsWith('.json.template')),
+                template({ ...options }),
+                renameTemplateFiles(),
+            ],
+        );
+
+    * the extension `.template` is optional and is removed by `renameTemplateFiles()`
+
+* placeholders in file names are set by `__<placeholder>__`
+
+        __componentName__.fancy.ts.template
+
+* placeholders are set by `<%= ... %>` where a variable can be used which is set in the corresponding javascript scope
+    * pass variables as an object to the method `template` of `@angular-devkit/schematics`
+
+            apply(
+                url('./<templates folder>'),
+                [
+                    template({ variable1, ... }),
+                ],
+            );
+
+    * set variables in structural javascript code within the templates (see next bullet point)
+* structural javascript within templates is set by `<% ... %>`
+    * it is useful, e.g., to iterate over placeholders
+    * variables set in the javascript code are available by placeholders
+
+            <% const asdf = 42 %>
+            <%= asdf %>
+
+            <%
+                for (const value of [1, 2, 3]) {
+            %>
+            <%= value %>
+            <%
+                }
+            %>
+
+    * remind that placeholders are not within the javascript code blocks, i.e. the javascript blocks must be interrupted
+
+
+
+see also *https://github.com/angular/angular-devkit-schematics-builds/blob/main/README.md*
+
+
+### more details on the source code of this example project
+
+see git history `;)`
