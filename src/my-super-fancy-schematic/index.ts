@@ -5,6 +5,7 @@ import { ComponentName } from './_domain/componentName';
 import { ComponentInput } from './_domain/componentInput';
 
 import '../utils/to-upper-camel-case';
+import { arrayWithIsLast } from '../utils/array-with-is-last';
 
 const FILE_PATH = './';
 
@@ -142,28 +143,4 @@ function generateInputStrings(parsedInputs: ComponentInput[]): string[] {
     }
 
     return inputStrings;
-}
-
-// see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Iterators_and_generators
-//     https://stackoverflow.com/questions/54116774/detect-last-iteration-in-for-of-loop-in-es6-javascript
-//
-// usage example:
-//    for (const j of arrayWithIsLast([ 'asdf', 'qwer', 'yxcv' ])) {
-//        const delimiter = j.isLast ? '!' : ',';
-//        console.log(`${j.value}${delimiter}`);
-//    }
-export function* arrayWithIsLast(iterable: string[] | number[]) {
-
-    const iterator = iterable[ Symbol.iterator ]();
-    let current = iterator.next();
-    let next = iterator.next();
-
-    while (!current.done) {
-        yield {
-            value: current.value,
-            isLast: next.done,
-        };
-        current = next;
-        next = iterator.next();
-    }
 }
