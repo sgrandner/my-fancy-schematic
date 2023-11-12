@@ -16,4 +16,14 @@ class <%= componentNameCamelized %> {
 
     }
 %>
+
+    // values read from source file (component outputs)
+<%
+    for (let o of arrayWithIsLast(outputStrings)) {
+        const linebreak = !o.isLast ? '\n' : '';
+
+%>    <%= o.value %><%= linebreak %><%
+
+    }
+%>
 }

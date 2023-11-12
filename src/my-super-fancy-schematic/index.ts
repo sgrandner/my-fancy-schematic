@@ -8,6 +8,7 @@ import '../utils/to-upper-camel-case';
 import { arrayWithIsLast } from '../utils/array-with-is-last';
 import { customConsoleLog } from '../utils/custom-console-log';
 import { joinRegExps } from '../utils/compose-reg-exp';
+import { ComponentOutput } from './_domain/componentOutput';
 
 const FILE_PATH = './';
 
@@ -57,6 +58,9 @@ function createFancyComponent(options: MySuperFancyOptionsSchema): Rule {
         const parsedInputs = parseInputsFromComponent(component.filename);
         const inputStrings = generateInputStrings(parsedInputs);
 
+        const parsedOutputs = parseOutputsFromComponent(component.filename);
+        const outputStrings = generateOutputStrings(parsedOutputs);
+
         const templateSource = apply(
             url('./templates'),
             [
@@ -68,6 +72,7 @@ function createFancyComponent(options: MySuperFancyOptionsSchema): Rule {
                     componentNameCamelized,
                     arrayWithIsLast,
                     inputStrings,
+                    outputStrings,
                 }),
                 renameTemplateFiles(),
             ],
@@ -129,16 +134,19 @@ function parseInputsFromComponent(filename: string): ComponentInput[] {
 
 function generateInputPattern(): RegExp {
 
-    const quotedName = /(?:(?:'|")([a-zA-Z0-9-_]+)(?:'|"))?/;
+    const alias = /(?:(?:'|")([a-zA-Z0-9-_]+)(?:'|"))?/;
     const spacesAndBreaks = /\s*\n?\s*/;        // should work without \n since \s also contains line breaks ?!
     const name = /([a-zA-Z0-9-_$]+)(?:\?|!)?/;
-    const type = /(?::\s*([a-zA-Z0-9-_<>\s{}\[\]:]+))?/;
+    // TODO Is there another way to match a group containing spaces which do not end with a space ?
+    //      A lookahead did not really work since it does not matter what is after this group
+    //      but how does this group end !?
+    const type = /(?::\s*([a-zA-Z0-9-_<>\s{}\[\]:]+[a-zA-Z0-9-_<>{}\[\]:]))?/;
     const value = /(?:\s*=\s*([a-zA-Z0-9-_<>\[\]\{\}\s:,'"]+))?/;
     const setterArgumentWithType = /(?:\((?:[a-zA-Z0-9-_$]+)(?:\?|!)?(?::\s*([a-zA-Z0-9-_<>\s{}\[\]:]+))?\)\s*\{)?/;
 
     return joinRegExps(
         /@Input\(/,
-        quotedName,
+        alias,
         /\)/,
         /(?: set)?/,
         spacesAndBreaks,
@@ -175,4 +183,76 @@ function generateInputStrings(parsedInputs: ComponentInput[]): string[] {
     }
 
     return inputStrings;
+}
+
+function parseOutputsFromComponent(filename: string): ComponentOutput[] {
+
+    const buffer = fs.readFileSync(`${FILE_PATH}${filename}`, { encoding: 'utf8' });
+
+    const patternOutputs = generateOutputPattern();
+    customConsoleLog(patternOutputs.source);
+
+    const parsedOutputs: ComponentOutput[] = [];
+    const logArray: string[] = [];
+    for (const match of buffer.matchAll(patternOutputs)) {
+
+        parsedOutputs.push({
+            alias: match[ 1 ],
+            name: match[ 2 ],
+            type: match[ 3 ],
+            initializer: match[ 4 ],
+        });
+
+        logArray.push(`alias: ${match[ 1 ]}, name: ${match[ 2 ]}, type: ${match[ 3 ]}, initializer: ${match[ 4 ]}`);
+    }
+
+    customConsoleLog(logArray, 'matched component outputs:');
+
+    return parsedOutputs;
+}
+
+function generateOutputPattern(): RegExp {
+
+    const alias = /(?:(?:'|")([a-zA-Z0-9-_]+)(?:'|"))?/;
+    const spacesAndBreaks = /\s*\n?\s*/;        // should work without \n since \s also contains line breaks ?!
+    const name = /([a-zA-Z0-9-_$]+)(?:\?|!)?/;
+    // TODO same as for input type !
+    const type = /(?::\s*([a-zA-Z0-9-_<>\s{}\[\]:]+[a-zA-Z0-9-_<>{}\[\]:]))?/;
+    const initializer = /(?:\s*=\s*([a-zA-Z0-9-_<>\(\)\[\]\{\}\s:,'"]+))?/;
+
+    return joinRegExps(
+        /@Output\(/,
+        alias,
+        /\)/,
+        spacesAndBreaks,
+        name,
+        type,
+        initializer,
+        /;?/,
+    );
+}
+
+function generateOutputStrings(parsedOutputs: ComponentOutput[]): string[] {
+
+    const outputStrings: string[] = [];
+
+    for (const i of parsedOutputs) {
+
+        const stringArray: string[] = [];
+        stringArray.push(!!i.alias && i.alias.length > 0 ? i.alias : i.name ?? '')
+
+        if (!!i.type && i.type.length > 0) {
+            stringArray.push(`: ${i.type}`);
+        }
+
+        if (!!i.initializer && i.initializer.length > 0) {
+            stringArray.push(` = ${i.initializer}`);
+        }
+
+        stringArray.push(';');
+
+        outputStrings.push(stringArray.join(''));
+    }
+
+    return outputStrings;
 }

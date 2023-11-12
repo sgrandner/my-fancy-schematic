@@ -30,6 +30,7 @@ class AdorableAndFancyComponent {
     // typed inputs with default value
     @Input() awesomeName: string = 'stefan';
     @Input() awesomeNumber: number = 42;
+    @Input() badAwesomeName: string= 'stefan';
 
 
     // alias
@@ -41,9 +42,28 @@ class AdorableAndFancyComponent {
     ridiculousName: string;
 
 
-    // TODO input setters with optional alias
+    // input setters with optional alias
     @Input() set setStrangeName(locaStrangeName: string) {
     }
     @Input('strangeName') set setStrangeName(locaStrangeName: string) {
     }
+
+
+    // typed outputs
+    @Output() mouseClick: EventEmitter<void>;
+
+    // untyped initialized outputs
+    @Output() mouseClick = new EventEmitter<void>();
+
+    // typed initialized outputs
+    @Output() mouseClick: EventEmitter<void> = new EventEmitter<void>();
+    @Output() complexMouseClick: EventEmitter<{ [ key: string ]: number }> = new EventEmitter<{ [ key: string ]: number }>();
+    @Output() badMouseClick: EventEmitter<void>= new EventEmitter<void>();
+
+    // typed outputs with alias
+    @Output('catClick') mouseClick: EventEmitter<void>;
+
+    // outputs on new line(read by \s in regex)
+    @Output()
+    mouseClick: EventEmitter<void>;
 }
