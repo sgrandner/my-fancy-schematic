@@ -7,6 +7,7 @@ import { ComponentInput } from './_domain/componentInput';
 import '../utils/to-upper-camel-case';
 import { arrayWithIsLast } from '../utils/array-with-is-last';
 import { customConsoleLog } from '../utils/custom-console-log';
+import { joinRegExps } from '../utils/compose-reg-exp';
 
 const FILE_PATH = './';
 
@@ -103,7 +104,8 @@ function parseInputsFromComponent(filename: string): ComponentInput[] {
 
     const buffer = fs.readFileSync(`${FILE_PATH}${filename}`, { encoding: 'utf8' });
 
-    const patternInputs = /@Input\((?:(?:'|")([a-zA-Z0-9-_]+)(?:'|"))?\)(?: set)?\s*\n?\s*([a-zA-Z0-9-_$]+)(?:\?|!)?(?::\s+([a-zA-Z0-9-_<>\s{}\[\]:]+))?(?:\s+=\s+([a-zA-Z0-9-_<>'"]+))?(?![a-zA-Z0-9-_$?!:=\s]);?(?:\((?:[a-zA-Z0-9-_$]+)(?:\?|!)?(?::\s+([a-zA-Z0-9-_<>\s{}\[\]:]+))\)\s*\{)?/g;
+    const patternInputs = generateInputPattern();
+    customConsoleLog(patternInputs.source);
 
     const parsedInputs: ComponentInput[] = [];
     const logArray: string[] = [];
@@ -123,6 +125,29 @@ function parseInputsFromComponent(filename: string): ComponentInput[] {
     customConsoleLog(logArray, 'matched component inputs:');
 
     return parsedInputs;
+}
+
+function generateInputPattern(): RegExp {
+
+    const quotedName = /(?:(?:'|")([a-zA-Z0-9-_]+)(?:'|"))?/;
+    const spacesAndBreaks = /\s*\n?\s*/;        // should work without \n since \s also contains line breaks ?!
+    const name = /([a-zA-Z0-9-_$]+)(?:\?|!)?/;
+    const type = /(?::\s*([a-zA-Z0-9-_<>\s{}\[\]:]+))?/;
+    const value = /(?:\s*=\s*([a-zA-Z0-9-_<>\[\]\{\}\s:,'"]+))?/;
+    const setterArgumentWithType = /(?:\((?:[a-zA-Z0-9-_$]+)(?:\?|!)?(?::\s*([a-zA-Z0-9-_<>\s{}\[\]:]+))?\)\s*\{)?/;
+
+    return joinRegExps(
+        /@Input\(/,
+        quotedName,
+        /\)/,
+        /(?: set)?/,
+        spacesAndBreaks,
+        name,
+        type,
+        value,
+        /;?/,
+        setterArgumentWithType,
+    );
 }
 
 function generateInputStrings(parsedInputs: ComponentInput[]): string[] {

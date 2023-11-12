@@ -15,13 +15,16 @@ class AdorableAndFancyComponent {
     // typed inputs - with assertion
     @Input() sureName!: string;
 
-    // typed inputs - observable
+    // typed inputs - generics
     @Input() asyncName$: Observable<string>;
+    @Input() asyncArray$: Observable<number[]>;
+    @Input() asyncObject$: Observable<{ [ key: string ]: number[] }>;
 
 
     // untyped inputs with default value
     @Input() lovelyName = 'stefan';
     @Input() lovelyNumber = 42;
+    @Input() lovelyObject = { [ 'asdf' ]: [ 1, 2, 3, 'sdfg' ] };
 
 
     // typed inputs with default value
