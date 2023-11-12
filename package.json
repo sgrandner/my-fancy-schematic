@@ -1,5 +1,5 @@
 {
-    "name": "my-fancy-schematic",
+    "name": "@sgrandner/my-fancy-schematic",
     "version": "0.0.0",
     "description": "A blank schematics",
     "scripts": {
