@@ -7,6 +7,10 @@ src/**/*.d.ts
 !src/@types/**/*.d.ts
 dist/
 
+# test data
+test-component/**/*.fancy.ts
+test-component/**/*.json
+
 # IDEs
 .idea/
 jsconfig.json

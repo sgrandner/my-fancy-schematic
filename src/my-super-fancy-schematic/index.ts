@@ -1,4 +1,4 @@
-import { Rule, SchematicContext, Tree, apply, chain, filter, mergeWith, renameTemplateFiles, template, url } from '@angular-devkit/schematics';
+import { Rule, SchematicContext, Tree, apply, chain, filter, mergeWith, move, renameTemplateFiles, template, url } from '@angular-devkit/schematics';
 import { MySuperFancyOptionsSchema } from './schema';
 import * as fs from 'fs';
 import { ComponentName } from './_domain/componentName';
@@ -10,13 +10,16 @@ import { customConsoleLog } from '../utils/custom-console-log';
 import { joinRegExps } from '../utils/compose-reg-exp';
 import { ComponentOutput } from './_domain/componentOutput';
 
-const FILE_PATH = './';
-
 // You don't have to export the function as default. You can also have more than one rule factory
 // per file.
-export function mySuperFancySchematic(options: any): Rule {
+export function mySuperFancySchematic(options: MySuperFancyOptionsSchema): Rule {
 
     return (tree: Tree, context: SchematicContext) => {
+
+        if (options.targetPath?.length === 0) {
+            options.targetPath = './';
+        }
+
         return chain([
             createJsonFile(options),
             createFancyComponent(options),
@@ -38,6 +41,7 @@ function createJsonFile(options: MySuperFancyOptionsSchema): Rule {
                 filter((path) => path.endsWith('.json.template')),
                 template({ ...options }),
                 renameTemplateFiles(),
+                move(options.targetPath),
             ],
         );
 
@@ -49,16 +53,16 @@ function createFancyComponent(options: MySuperFancyOptionsSchema): Rule {
 
     return (tree: Tree, context: SchematicContext) => {
 
-        const component = readComponentName();
+        const component = readComponentName(options.targetPath);
         const componentNameCamelized = component.name.toUpperCamelCase();
 
         customConsoleLog('create a fancy component file in current folder ' +
             `for component name: "${componentNameCamelized}"`);
 
-        const parsedInputs = parseInputsFromComponent(component.filename);
+        const parsedInputs = parseInputsFromComponent(options.targetPath, component.filename);
         const inputStrings = generateInputStrings(parsedInputs);
 
-        const parsedOutputs = parseOutputsFromComponent(component.filename);
+        const parsedOutputs = parseOutputsFromComponent(options.targetPath, component.filename);
         const outputStrings = generateOutputStrings(parsedOutputs);
 
         const templateSource = apply(
@@ -75,6 +79,7 @@ function createFancyComponent(options: MySuperFancyOptionsSchema): Rule {
                     outputStrings,
                 }),
                 renameTemplateFiles(),
+                move(options.targetPath),
             ],
         );
 
@@ -82,9 +87,9 @@ function createFancyComponent(options: MySuperFancyOptionsSchema): Rule {
     };
 }
 
-function readComponentName(): ComponentName {
+function readComponentName(targetPath: string): ComponentName {
 
-    const filenames = fs.readdirSync(FILE_PATH);
+    const filenames = fs.readdirSync(targetPath);
     customConsoleLog(`reading file names in directory: ${filenames.toString()}`);
 
     const pattern = /([a-zA-Z0-9-_.]+)\.component\.ts/;
@@ -105,9 +110,9 @@ function readComponentName(): ComponentName {
     };
 }
 
-function parseInputsFromComponent(filename: string): ComponentInput[] {
+function parseInputsFromComponent(targetPath: string, filename: string): ComponentInput[] {
 
-    const buffer = fs.readFileSync(`${FILE_PATH}${filename}`, { encoding: 'utf8' });
+    const buffer = fs.readFileSync(`${targetPath}${filename}`, { encoding: 'utf8' });
 
     const patternInputs = generateInputPattern();
     customConsoleLog(patternInputs.source, 'regex for component inputs:');
@@ -185,9 +190,9 @@ function generateInputStrings(parsedInputs: ComponentInput[]): string[] {
     return inputStrings;
 }
 
-function parseOutputsFromComponent(filename: string): ComponentOutput[] {
+function parseOutputsFromComponent(targetPath: string, filename: string): ComponentOutput[] {
 
-    const buffer = fs.readFileSync(`${FILE_PATH}${filename}`, { encoding: 'utf8' });
+    const buffer = fs.readFileSync(`${targetPath}${filename}`, { encoding: 'utf8' });
 
     const patternOutputs = generateOutputPattern();
     customConsoleLog(patternOutputs.source, 'regex for component outputs:');

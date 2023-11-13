@@ -18,7 +18,9 @@
         "copyFiles": "npm run copySchema && npm run copySchemaOptions && npm run copyTemplates",
         "copySchema": "cp src/my-super-fancy-schematic/schema.json dist/my-super-fancy-schematic/schema.json",
         "copySchemaOptions": "cp src/my-super-fancy-schematic/schema.d.ts dist/my-super-fancy-schematic/schema.d.ts",
-        "copyTemplates": "cp -r src/my-super-fancy-schematic/templates dist/my-super-fancy-schematic/templates"
+        "copyTemplates": "cp -r src/my-super-fancy-schematic/templates dist/my-super-fancy-schematic/templates",
+
+        "clean:testfiles": "rm test-component/*.fancy.ts test-component/*.json test-component/test-subcomponent/*.fancy.ts test-component/test-subcomponent/*.json"
     },
     "keywords": [
         "schematics"

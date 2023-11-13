@@ -43,9 +43,9 @@ class AdorableAndFancyComponent {
 
 
     // input setters with optional alias
-    @Input() set setStrangeName(locaStrangeName: string) {
+    @Input() set setStrangeName(localStrangeName: string) {
     }
-    @Input('strangeName') set setStrangeName(locaStrangeName: string) {
+    @Input('strangeName') set setStrangeName(localStrangeName: string) {
     }
 
 
