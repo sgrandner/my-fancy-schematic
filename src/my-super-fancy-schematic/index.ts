@@ -9,6 +9,7 @@ import { arrayWithIsLast } from '../utils/array-with-is-last';
 import { customConsoleLog } from '../utils/custom-console-log';
 import { joinRegExps } from '../utils/compose-reg-exp';
 import { ComponentOutput } from './_domain/componentOutput';
+import { fixPath } from '../utils/fix-path';
 
 // You don't have to export the function as default. You can also have more than one rule factory
 // per file.
@@ -16,13 +17,14 @@ export function mySuperFancySchematic(options: MySuperFancyOptionsSchema): Rule 
 
     return (tree: Tree, context: SchematicContext) => {
 
-        if (options.targetPath?.length === 0) {
-            options.targetPath = './';
-        }
+        const validOptions: MySuperFancyOptionsSchema = {
+            ...options,
+            targetPath: fixPath(options.targetPath),
+        };
 
         return chain([
-            createJsonFile(options),
-            createFancyComponent(options),
+            createJsonFile(validOptions),
+            createFancyComponent(validOptions),
         ])(tree, context);
     };
 }
@@ -90,6 +92,7 @@ function createFancyComponent(options: MySuperFancyOptionsSchema): Rule {
 function readComponentName(targetPath: string): ComponentName {
 
     const filenames = fs.readdirSync(targetPath);
+    customConsoleLog(`read from target path ${targetPath}`);
     customConsoleLog(`reading file names in directory: ${filenames.toString()}`);
 
     const pattern = /([a-zA-Z0-9-_.]+)\.component\.ts/;
