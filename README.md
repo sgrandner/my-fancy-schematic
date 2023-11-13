@@ -64,11 +64,39 @@ run the unit tests, using Jasmine as a runner and test framework
     npm run test
 
 
-### Publishing to official npm registry (use with care)
+### Publishing
+
+*see https://docs.npmjs.com/creating-and-publishing-private-packages*
+
+#### Publish to official npm registry (use with care !)
 
     npm publish
 
-**TODO publish in own registry and more**
+To prevent this set `"private": "true"` in the package.json.
+
+
+#### Publish to local registry
+
+1) set up a local registry -> TODO
+1) set registry in package.json
+
+        "publishConfig": {
+            "registry": "http://my-internal-registry.local"
+        }
+
+
+#### Install from local path before publishing
+
+1) install package locally
+
+        cd <target project for installation>
+        npm install <full path to your package>
+
+    * to uninstall again use `npm uninstall <package name>`
+
+1) execute schematic
+
+        ng generate <package name>:<schematic name> [...schematic arguments]
 
 
 ## Some details on angular schematics
