@@ -15,6 +15,8 @@ class AdorableAndFancyComponent {
     // typed inputs - with assertion
     @Input() subSureName!: string;
 
+    @Input() subAnyType: string | number | boolean;
+
     // typed inputs - generics
     @Input() subAsyncName$: Observable<string>;
     @Input() subAsyncArray$: Observable<number[]>;
@@ -30,7 +32,8 @@ class AdorableAndFancyComponent {
     // typed inputs with default value
     @Input() subAwesomeName: string = 'stefan';
     @Input() subAwesomeNumber: number = 42;
-    @Input() subBadAwesomeName: string= 'stefan';
+    @Input() subBadAwesomeName: string = 'stefan';
+    @Input() subGenericAwesomeThing: Subject<void | boolean> = new Subject<void | boolean>();
 
 
     // alias
@@ -59,6 +62,8 @@ class AdorableAndFancyComponent {
     @Output() subMouseClick: EventEmitter<void> = new EventEmitter<void>();
     @Output() subComplexMouseClick: EventEmitter<{ [ key: string ]: number }> = new EventEmitter<{ [ key: string ]: number }>();
     @Output() subBadMouseClick: EventEmitter<void>= new EventEmitter<void>();
+
+    @Output() subMouseClick: EventEmitter<void | boolean> = new EventEmitter<void | boolean>();
 
     // typed outputs with alias
     @Output('subCatClick') subMouseClick: EventEmitter<void>;

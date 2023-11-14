@@ -148,8 +148,8 @@ function generateInputPattern(): RegExp {
     // TODO Is there another way to match a group containing spaces which do not end with a space ?
     //      A lookahead did not really work since it does not matter what is after this group
     //      but how does this group end !?
-    const type = /(?::\s*([a-zA-Z0-9-_<>\s{}\[\]:]+[a-zA-Z0-9-_<>{}\[\]:]))?/;
-    const value = /(?:\s*=\s*([a-zA-Z0-9-_<>\[\]\{\}\s:,'"]+))?/;
+    const type = /(?::\s*([a-zA-Z0-9-_<>{}\[\]:\s\|]+[a-zA-Z0-9-_<>{}\[\]:]))?/;
+    const value = /(?:\s*=\s*([a-zA-Z0-9-_<>\[\]\{\}:,'"\s\|]+))?/;
     const setterArgumentWithType = /(?:\((?:[a-zA-Z0-9-_$]+)(?:\?|!)?(?::\s*([a-zA-Z0-9-_<>\s{}\[\]:]+))?\)\s*\{)?/;
 
     return joinRegExps(
@@ -225,8 +225,8 @@ function generateOutputPattern(): RegExp {
     const spacesAndBreaks = /\s*\n?\s*/;        // should work without \n since \s also contains line breaks ?!
     const name = /([a-zA-Z0-9-_$]+)(?:\?|!)?/;
     // TODO same as for input type !
-    const type = /(?::\s*([a-zA-Z0-9-_<>\s{}\[\]:]+[a-zA-Z0-9-_<>{}\[\]:]))?/;
-    const initializer = /(?:\s*=\s*([a-zA-Z0-9-_<>\(\)\[\]\{\}\s:,'"]+))?/;
+    const type = /(?::\s*([a-zA-Z0-9-_<>{}\[\]:\s\|]+[a-zA-Z0-9-_<>{}\[\]:]))?/;
+    const initializer = /(?:\s*=\s*([a-zA-Z0-9-_<>\(\)\[\]\{\}:,'"\s\|]+))?/;
 
     return joinRegExps(
         /@Output\(/,
