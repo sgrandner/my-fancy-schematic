@@ -2,6 +2,10 @@
     "name": "@sgrandner/my-fancy-schematic",
     "version": "0.0.0",
     "description": "A blank schematics",
+    "private": "true",
+    "publishConfig": {
+        "registry": "http://my-internal-registry.local"
+    },
     "scripts": {
         "start:my-fancy-schematic": "schematics .:my-fancy-schematic",
         "start:my-super-fancy-schematic": "schematics .:my-super-fancy-schematic",
