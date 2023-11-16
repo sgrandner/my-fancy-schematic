@@ -11,18 +11,11 @@ import { joinRegExps } from '../utils/compose-reg-exp';
 import { ComponentOutput } from './_domain/componentOutput';
 import { setWorkingToProjectRootDirAndReturnTargetPath } from '../utils/path-handling';
 
-// You don't have to export the function as default. You can also have more than one rule factory
-// per file.
 export function mySuperFancySchematic(options: MySuperFancyOptionsSchema): Rule {
 
     return (tree: Tree, context: SchematicContext) => {
 
         const targetPath = setWorkingToProjectRootDirAndReturnTargetPath(options.targetPath);
-
-        // const validOptions: MySuperFancyOptionsSchema = {
-        //     ...options,
-        //     targetPath: projectPaths.relativeTargetPath,
-        // };
 
         return chain([
             createJsonFile(options, targetPath),
