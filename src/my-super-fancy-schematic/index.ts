@@ -9,7 +9,7 @@ import { arrayWithIsLast } from '../utils/array-with-is-last';
 import { customConsoleLog } from '../utils/custom-console-log';
 import { joinRegExps } from '../utils/compose-reg-exp';
 import { ComponentOutput } from './_domain/componentOutput';
-import { fixPath } from '../utils/fix-path';
+import { setWorkingToProjectRootDirAndReturnTargetPath } from '../utils/path-handling';
 
 // You don't have to export the function as default. You can also have more than one rule factory
 // per file.
@@ -17,19 +17,21 @@ export function mySuperFancySchematic(options: MySuperFancyOptionsSchema): Rule 
 
     return (tree: Tree, context: SchematicContext) => {
 
-        const validOptions: MySuperFancyOptionsSchema = {
-            ...options,
-            targetPath: fixPath(options.targetPath),
-        };
+        const targetPath = setWorkingToProjectRootDirAndReturnTargetPath(options.targetPath);
+
+        // const validOptions: MySuperFancyOptionsSchema = {
+        //     ...options,
+        //     targetPath: projectPaths.relativeTargetPath,
+        // };
 
         return chain([
-            createJsonFile(validOptions),
-            createFancyComponent(validOptions),
+            createJsonFile(options, targetPath),
+            createFancyComponent(options, targetPath),
         ])(tree, context);
     };
 }
 
-function createJsonFile(options: MySuperFancyOptionsSchema): Rule {
+function createJsonFile(options: MySuperFancyOptionsSchema, targetPath: string): Rule {
 
     return (tree: Tree, context: SchematicContext) => {
 
@@ -43,7 +45,7 @@ function createJsonFile(options: MySuperFancyOptionsSchema): Rule {
                 filter((path) => path.endsWith('.json.template')),
                 template({ ...options }),
                 renameTemplateFiles(),
-                move(options.targetPath),
+                move(targetPath),
             ],
         );
 
@@ -51,20 +53,20 @@ function createJsonFile(options: MySuperFancyOptionsSchema): Rule {
     };
 }
 
-function createFancyComponent(options: MySuperFancyOptionsSchema): Rule {
+function createFancyComponent(options: MySuperFancyOptionsSchema, targetPath: string): Rule {
 
     return (tree: Tree, context: SchematicContext) => {
 
-        const component = readComponentName(options.targetPath);
+        const component = readComponentName(targetPath);
         const componentNameCamelized = component.name.toUpperCamelCase();
 
         customConsoleLog('create a fancy component file in current folder ' +
             `for component name: "${componentNameCamelized}"`);
 
-        const parsedInputs = parseInputsFromComponent(options.targetPath, component.filename);
+        const parsedInputs = parseInputsFromComponent(targetPath, component.filename);
         const inputStrings = generateInputStrings(parsedInputs);
 
-        const parsedOutputs = parseOutputsFromComponent(options.targetPath, component.filename);
+        const parsedOutputs = parseOutputsFromComponent(targetPath, component.filename);
         const outputStrings = generateOutputStrings(parsedOutputs);
 
         const templateSource = apply(
@@ -81,7 +83,7 @@ function createFancyComponent(options: MySuperFancyOptionsSchema): Rule {
                     outputStrings,
                 }),
                 renameTemplateFiles(),
-                move(options.targetPath),
+                move(targetPath),
             ],
         );
 
