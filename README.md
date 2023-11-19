@@ -99,6 +99,13 @@ To prevent this set `"private": "true"` in the package.json.
         ng generate <package name>:<schematic name> [...schematic arguments]
 
 
+#### Install from local registry
+
+Instead of publishing to the official npm registry you might want to have a private registry on your local machine or on a server.
+
+See example project `my-local-npm-registry-with-verdaccio` for local registry with verdaccio.
+
+
 ## Some details on angular schematics
 
 official angular-devkit-schematics docs:
