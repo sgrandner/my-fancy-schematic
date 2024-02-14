@@ -2,11 +2,11 @@ import path = require('path');
 import * as findParentDir from 'find-parent-dir';
 
 /**
- * Given path is sanitized and returned if non-empty path parameter is passed
+ * The given path is sanitized and returned if a non-empty path parameter is passed
  * and the working directory (from where this was called)
  * equals the root directory of the project. Else an error is thrown.
  *
- * For a non-empty path parameter pass to this method the relative path
+ * For an empty path parameter passed to this method the relative path
  * is determined automatically by the working and the root directory
  * of the project where ".git" folder is located.
  * -> TODO Better way to determine nodejs project root ?!
