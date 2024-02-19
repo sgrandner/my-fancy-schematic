@@ -2,13 +2,13 @@ import { Rule, SchematicContext, Tree, apply, chain, filter, mergeWith, move, re
 import { MySuperFancyOptionsSchema } from './schema';
 import * as fs from 'fs';
 import { ComponentName } from './_domain/componentName';
-import { ComponentInput } from './_domain/componentInput';
+import { ComponentInput, ComponentInputResult } from './_domain/componentInput';
 
 import '../utils/to-upper-camel-case';
 import { arrayWithIsLast } from '../utils/array-with-is-last';
 import { customConsoleLog } from '../utils/custom-console-log';
 import { joinRegExps } from '../utils/compose-reg-exp';
-import { ComponentOutput } from './_domain/componentOutput';
+import { ComponentOutput, ComponentOutputResult } from './_domain/componentOutput';
 import { setWorkingToProjectRootDirAndReturnTargetPath } from '../utils/path-handling';
 
 export function mySuperFancySchematic(options: MySuperFancyOptionsSchema): Rule {
@@ -50,17 +50,17 @@ function createFancyComponent(options: MySuperFancyOptionsSchema, targetPath: st
 
     return (tree: Tree, context: SchematicContext) => {
 
-        const component = readComponentName(targetPath);
-        const componentNameCamelized = component.name.toUpperCamelCase();
+        const componentName = readComponentName(targetPath);
+        const componentNameCamelized = componentName.name.toUpperCamelCase();
 
-        customConsoleLog('create a fancy component file in current folder ' +
-            `for component name: "${componentNameCamelized}"`);
+        const componentSelector = parseComponentSelector(targetPath, componentName.filename);
+        customConsoleLog(`component selector: ${componentSelector}`);
 
-        const parsedInputs = parseInputsFromComponent(targetPath, component.filename);
-        const inputStrings = generateInputStrings(parsedInputs);
+        const parsedInputs = parseInputsFromComponent(targetPath, componentName.filename);
+        const inputStrings = processInputResults(parsedInputs);
 
-        const parsedOutputs = parseOutputsFromComponent(targetPath, component.filename);
-        const outputStrings = generateOutputStrings(parsedOutputs);
+        const parsedOutputs = parseOutputsFromComponent(targetPath, componentName.filename);
+        const outputStrings = processOutputResults(parsedOutputs);
 
         const templateSource = apply(
             url('./templates'),
@@ -69,8 +69,9 @@ function createFancyComponent(options: MySuperFancyOptionsSchema, targetPath: st
                 // NOTE passed arguments are used as values for placeholders in files and for file names
                 template({
                     ...options,
-                    componentName: component.name,
+                    componentName: componentName.name,
                     componentNameCamelized,
+                    componentSelector,
                     arrayWithIsLast,
                     inputStrings,
                     outputStrings,
@@ -106,6 +107,30 @@ function readComponentName(targetPath: string): ComponentName {
         filename,
         name,
     };
+}
+
+function parseComponentSelector(targetPath: string, filename: string): string {
+    const buffer = fs.readFileSync(`${targetPath}${filename}`, {
+        encoding: "utf8",
+    });
+    const pattern = RegExp(/selector:\s*['|"]([a-zA-Z0-9-]+)['|"]/g);
+
+    let parsedSelectorResult: RegExpExecArray | null;
+    let parsedSelector: string | undefined = undefined;
+
+    while ((parsedSelectorResult = pattern.exec(buffer)) !== null) {
+        if (parsedSelector !== undefined) {
+            throw new Error('More than one match for "selector" found !');
+        }
+        // NOTE store capture group
+        parsedSelector = parsedSelectorResult[ 1 ];
+    }
+
+    if (parsedSelector === undefined) {
+        throw new Error('No match for "selector" found !');
+    }
+
+    return parsedSelector;
 }
 
 function parseInputsFromComponent(targetPath: string, filename: string): ComponentInput[] {
@@ -161,31 +186,43 @@ function generateInputPattern(): RegExp {
     );
 }
 
-function generateInputStrings(parsedInputs: ComponentInput[]): string[] {
-
-    const inputStrings: string[] = [];
+function processInputResults(parsedInputs: ComponentInput[]): ComponentInputResult[] {
+    const inputResults: ComponentInputResult[] = [];
 
     for (const i of parsedInputs) {
-
         const stringArray: string[] = [];
-        stringArray.push(!!i.alias && i.alias.length > 0 ? i.alias : i.name ?? '')
 
+        // NOTE add name of input from component
+        const name = !!i.alias && i.alias.length > 0 ? i.alias : i.name ?? '';
+        stringArray.push(name);
+
+        // NOTE add input type from component
+        let type: string | undefined;
         if (!!i.type && i.type.length > 0) {
-            stringArray.push(`: ${i.type}`);
+            type = i.type;
         } else if (!!i.setterType && i.setterType.length > 0) {
-            stringArray.push(`: ${i.setterType}`);
+            type = i.setterType;
+        }
+        if (type !== undefined && type.length > 0) {
+            stringArray.push(`: ${type}`);
         }
 
         if (!!i.value && i.value.length > 0) {
+            // NOTE add input default value from component
             stringArray.push(` = ${i.value}`);
+        } else {
+            // NOTE add a dummy value for storybook if no default is set in the component
+            const dummyValue = generateDummyValue(type);
+            stringArray.push(` = ${dummyValue}`);
         }
 
-        stringArray.push(';');
-
-        inputStrings.push(stringArray.join(''));
+        inputResults.push({
+            name,
+            complete: stringArray.join(''),
+        });
     }
 
-    return inputStrings;
+    return inputResults;
 }
 
 function parseOutputsFromComponent(targetPath: string, filename: string): ComponentOutput[] {
@@ -235,14 +272,14 @@ function generateOutputPattern(): RegExp {
     );
 }
 
-function generateOutputStrings(parsedOutputs: ComponentOutput[]): string[] {
-
-    const outputStrings: string[] = [];
+function processOutputResults(parsedOutputs: ComponentOutput[]): ComponentOutputResult[] {
+    const outputResults: ComponentOutputResult[] = [];
 
     for (const i of parsedOutputs) {
-
         const stringArray: string[] = [];
-        stringArray.push(!!i.alias && i.alias.length > 0 ? i.alias : i.name ?? '')
+
+        const name = !!i.alias && i.alias.length > 0 ? i.alias : i.name ?? '';
+        stringArray.push(name);
 
         if (!!i.type && i.type.length > 0) {
             stringArray.push(`: ${i.type}`);
@@ -254,8 +291,32 @@ function generateOutputStrings(parsedOutputs: ComponentOutput[]): string[] {
 
         stringArray.push(';');
 
-        outputStrings.push(stringArray.join(''));
+        outputResults.push({
+            name,
+            complete: stringArray.join(''),
+        });
     }
 
-    return outputStrings;
+    return outputResults;
+}
+
+function generateDummyValue(type: string | undefined): string {
+    let dummyValue: string;
+
+    switch (type) {
+        case 'string':
+            dummyValue = "'fancy string'";
+            break;
+        case 'number':
+            dummyValue = '42';
+            break;
+        case 'boolean':
+            dummyValue = 'false';
+            break;
+        default:
+            dummyValue = "'unknown type'";
+            break;
+    }
+
+    return dummyValue;
 }

@@ -25,7 +25,7 @@ Install schematics dependencies
 **TODO install as local dev dependencies in project instead ?!**
 
 
-### Add schematic to project
+### Create schematics project with first schematic (same name as project)
 
     schematics blank --name=<schematic name>
 
@@ -37,7 +37,7 @@ Install schematics dependencies
 
 ### Starting (with optional properties)
 
-    npm run start
+    npm run start:<schematic name>
 
 **As default schematics are started locally in dry run mode, i.e., no files are written to disk !**
 
@@ -46,15 +46,15 @@ a property `fancy` can be set in different ways
 
 * with prompt
 
-        npm run start
+        npm run start:<schematic name>
 
 * as `fancy` argument
 
-        npm run start --fancy=<something>
+        npm run start:<schematic name> --fancy=<something>
 
 * first command line argument as default
 
-        npm run start <something>
+        npm run start:<schematic name> <something>
 
 
 ### Unit Testing
@@ -90,7 +90,7 @@ To prevent this set `"private": "true"` in the package.json.
 1) install package locally
 
         cd <target project for installation>
-        npm install <full path to your package>
+        npm install -D <full path to your schematics project>
 
     * to uninstall again use `npm uninstall <package name>`
 

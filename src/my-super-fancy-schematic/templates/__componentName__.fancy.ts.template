@@ -1,3 +1,5 @@
+<%= componentSelector %>
+
 class <%= componentNameCamelized %> {
 
     // values set by command line arguments

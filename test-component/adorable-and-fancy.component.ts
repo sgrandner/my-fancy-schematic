@@ -1,3 +1,7 @@
+@Component({
+    selector: 'fancy-selector',
+    template: 'fancy template',
+})
 class AdorableAndFancyComponent {
 
     // untyped inputs

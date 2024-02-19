@@ -5,3 +5,8 @@ export interface ComponentInput {
     value: string | undefined;
     setterType: string | undefined;
 }
+
+export interface ComponentInputResult {
+    name: string;
+    complete: string;
+}

@@ -4,3 +4,8 @@ export interface ComponentOutput {
     type: string | undefined;
     initializer: string | undefined;
 }
+
+export interface ComponentOutputResult {
+    name: string;
+    complete: string;
+}
